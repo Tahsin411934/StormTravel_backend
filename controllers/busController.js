@@ -85,7 +85,7 @@ const getBusSchedulesByDate = async (req, res) => {
 };
 
 // Start the schedule insertion function every 6 minutes
-insertBusScheduleEverySixMinutes();
+// insertBusScheduleEverySixMinutes();
 
 // Export the functions
 module.exports = { addBusSchedule, getBusSchedulesByDate };

@@ -1,16 +1,16 @@
-const Flight = require('../models/flightSchedule');
+const Train = require('../models/trainSchedule');
 
-const addFlightSchedule = async (req, res) => {
+const addTrainSchedule = async (req, res) => {
    try {
-      const newFlightSchedule = new Flight(req.body);
-      await newFlightSchedule.save();
-      res.status(200).json({ msg: 'Created flight schedule' });
+      const newTrainSchedule = new Train(req.body);
+      await newTrainSchedule.save();
+      res.status(200).json({ msg: 'Created Train schedule' });
    } catch (error) {
       res.status(500).json({ msg: 'Error creating schedule', error: error.message });
    }
 };
 
-const getFlightSchedule = async (req, res) => {
+const getTrainSchedule = async (req, res) => {
    const { date, from, to } = req.query;
 console.log(date, from, to )
    if (!date || !from || !to || date === 'null') {
@@ -18,7 +18,7 @@ console.log(date, from, to )
    }
 
    try {
-      const flightSchedules = await Flight.find({
+      const trainSchedules = await Train.find({
          date: {
             $gte: new Date(date),
             $lt: new Date(new Date(date).setDate(new Date(date).getDate() + 1)),
@@ -27,15 +27,15 @@ console.log(date, from, to )
          to,
       });
 
-      if (flightSchedules.length === 0) {
+      if (trainSchedules.length === 0) {
          return res.status(404).json({ msg: 'No flight schedules found for the specified date and route' });
       }
 
-      res.json(flightSchedules);
+      res.json(trainSchedules);
    } catch (error) {
       console.error(error);
       res.status(500).json({ msg: 'Error fetching flight schedules', error: error.message });
    }
 };
 
-module.exports = { addFlightSchedule, getFlightSchedule };
+module.exports = { addTrainSchedule, getTrainSchedule };

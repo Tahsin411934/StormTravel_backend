@@ -9,7 +9,19 @@ const addBecomeTourGuide = async (req, res) => { // added const and updated func
         res.status(500).json({ msg: 'Error creating become tour guide request' });
     }
 }
-
+const  getTourGuiderById = async(req,res)=>{
+    try {
+        const guider = await BecomeTourGuide.findById(req.params.id);
+        if (!guider) {
+            return res.status(404).json({ msg: 'guider not found' });
+        }
+        res.json(guider);
+    } catch (error) {
+        
+        console.error(error);
+        res.status(500).json({ msg: 'Error fetching package', error: error.message });
+    }
+}
 
 const getTourGuider = async (req, res)=>{
     try {
@@ -24,4 +36,4 @@ const getTourGuider = async (req, res)=>{
 
 
 
-module.exports = { addBecomeTourGuide, getTourGuider };
+module.exports = { addBecomeTourGuide, getTourGuider, getTourGuiderById };
