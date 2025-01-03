@@ -31,7 +31,7 @@ const getPackage = async (req, res)=>{
 
 const getActivePackage = async(req,res)=>{
     try {
-        const package = await Package.find({ isActive: true });
+        const package = await Package.find({ isActive: true }).sort({ createdAt: -1 });
         res.json(package);
     } catch (error) {
         

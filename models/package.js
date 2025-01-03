@@ -9,10 +9,11 @@ const packageSchema = new mongoose.Schema({
     features: [{ type: String }],
     isActive: { type: Boolean, default: true },
     image: { type: String, required: true },
+    discountImage: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });
 
 const Package = mongoose.model('Package', packageSchema);
-
+ 
 module.exports = Package;
