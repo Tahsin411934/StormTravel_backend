@@ -6,6 +6,7 @@ const { addBecomeTourGuide, getTourGuider, getTourGuiderById } = require('../con
 router.post('/add', addBecomeTourGuide);
 router.get('/', getTourGuider);
 router.get('/:id', getTourGuiderById);
+router.get('/booking/:id', getTourGuiderById);
 
 module.exports = router;
  

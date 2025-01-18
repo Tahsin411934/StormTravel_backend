@@ -1,5 +1,14 @@
 const Booking = require("../models/booking"); // Adjust the path to your Booking model
 
+// Function to handle errors
+const handleError = (res, error, message) => {
+  res.status(500).json({
+    success: false,
+    message: message || "An error occurred",
+    error: error.message,
+  });
+};
+
 // Create a new booking
 exports.createBooking = async (req, res) => {
   try {
@@ -17,11 +26,7 @@ exports.createBooking = async (req, res) => {
       data: savedBooking,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Error creating booking",
-      error: error.message,
-    });
+    handleError(res, error, "Error creating booking");
   }
 };
 
@@ -36,11 +41,7 @@ exports.getAllBookings = async (req, res) => {
       data: bookings,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Error retrieving bookings",
-      error: error.message,
-    });
+    handleError(res, error, "Error retrieving bookings");
   }
 };
 
@@ -64,11 +65,7 @@ exports.getBookingById = async (req, res) => {
       data: booking,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Error retrieving booking",
-      error: error.message,
-    });
+    handleError(res, error, "Error retrieving booking");
   }
 };
 
@@ -96,11 +93,7 @@ exports.updateBooking = async (req, res) => {
       data: updatedBooking,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Error updating booking",
-      error: error.message,
-    });
+    handleError(res, error, "Error updating booking");
   }
 };
 
@@ -124,10 +117,7 @@ exports.deleteBooking = async (req, res) => {
       data: deletedBooking,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Error deleting booking",
-      error: error.message,
-    });
+    handleError(res, error, "Error deleting booking");
   }
 };
+ 

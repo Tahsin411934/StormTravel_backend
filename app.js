@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/mongodb'); // MongoDB connection
+const paymentRoutes = require('./routes/paymentRoutes');
 const userRoutes = require('./routes/userRoutes');
 const busRoutes = require('./routes/busRoutes');
 const packageRoutes = require('./routes/packageRoutes');
@@ -23,6 +24,7 @@ app.get('/', (req, res) => {
     res.send('API is running...');
 });
 
+app.use('/api', paymentRoutes);
 app.use('/api/users', userRoutes); // User-related routes
 app.use('/api/bus-schedule', busRoutes); // Bus schedule routes
 app.use('/api/train-schedule', trainRoutes); // Bus schedule routes

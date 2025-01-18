@@ -18,7 +18,7 @@ const  getAccessories = async (req, res) => {
     } catch (error) {
         res.status(500).json({ msg: 'Error fetching accessories', error: error.message });
     }
-}
+} 
 
 const getAccessoriesById = async(req,res)=>{
     try {

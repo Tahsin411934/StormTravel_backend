@@ -58,17 +58,25 @@ const insertBusScheduleEverySixMinutes = () => {
 // Get bus schedules by date
 const getBusSchedulesByDate = async (req, res) => {
     const { date, from, to } = req.query;
-
+console.log(date, from, to);
     if (!date || !from || !to || date === 'null') {
         return res.status(400).json({ msg: 'Date, from, and to fields are required' });
     }
 
     try {
+        // Normalize the date for filtering
+        const startOfDay = new Date(date);
+        startOfDay.setUTCHours(0, 0, 0, 0);
+        console.log(startOfDay)
+        const endOfDay = new Date(date);
+        endOfDay.setUTCHours(23, 59, 59, 999);
+        console.log(endOfDay)
         const busSchedules = await BusSchedule.find({
             date: {
-                $gte: new Date(date),
-                $lt: new Date(new Date(date).setDate(new Date(date).getDate() + 1))
+                $gte: startOfDay,
+                $lt: endOfDay
             },
+            
             from,
             to
         });
@@ -84,8 +92,25 @@ const getBusSchedulesByDate = async (req, res) => {
     }
 };
 
+
+const getBusById = async (req, res) => {
+    const {id} = req.params;
+    try {
+        const bus = await BusSchedule.findById(id)
+        if (!bus) {
+            return res.status(404).json({ msg: 'Bus not found' });
+        }
+        res.json(bus);
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ msg: 'Error fetching bus', error: error.message });
+    }
+    
+};
+
+
 // Start the schedule insertion function every 6 minutes
 // insertBusScheduleEverySixMinutes();
 
 // Export the functions
-module.exports = { addBusSchedule, getBusSchedulesByDate };
+module.exports = { addBusSchedule, getBusSchedulesByDate, getBusById };

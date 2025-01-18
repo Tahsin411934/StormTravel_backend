@@ -37,6 +37,10 @@ const BookingSchema = new mongoose.Schema({
     required: true,
     min: [0, "Total price must be a positive number"], 
   },
+  status: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model("Booking", BookingSchema);
