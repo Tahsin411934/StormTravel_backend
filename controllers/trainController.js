@@ -38,4 +38,18 @@ console.log(date, from, to )
    }
 };
 
-module.exports = { addTrainSchedule, getTrainSchedule };
+const getTrainById = async (req, res) => {
+   const {id} = req.params;
+   try {
+       const train = await Train.findById(id)
+       if (!train) {
+           return res.status(404).json({ msg: 'train not found' });
+       }
+       res.json(train);
+   } catch (error) {
+       console.log(error)
+       res.status(500).json({ msg: 'Error fetching train', error: error.message });
+   }
+   
+};
+module.exports = { addTrainSchedule, getTrainSchedule, getTrainById };

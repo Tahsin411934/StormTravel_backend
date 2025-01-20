@@ -10,6 +10,7 @@ const flightRoutes = require('./routes/flightRoutes');
 const trainRoutes = require('./routes/trainRoutes');
 const becomeTourGiderRoutes = require('./routes/becomeTourGiderRouter');
 const bookingRoutes = require("./routes/BookingRoute"); 
+const TicketBookingRouter = require("./routes/TicketBookingRouter"); 
 const app = express(); 
 
 // Middleware
@@ -29,6 +30,7 @@ app.use('/api/users', userRoutes); // User-related routes
 app.use('/api/bus-schedule', busRoutes); // Bus schedule routes
 app.use('/api/train-schedule', trainRoutes); // Bus schedule routes
 app.use('/api/flight',  flightRoutes);
+app.use('/api/ticketBooking',  TicketBookingRouter);
 app.use('/api/package', packageRoutes)
 app.use('/api/accessories', accessoriesRoutes)
 app.use("/api/booking", bookingRoutes); 

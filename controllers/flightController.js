@@ -38,4 +38,20 @@ console.log(date, from, to )
    }
 };
 
-module.exports = { addFlightSchedule, getFlightSchedule };
+
+const getFlightById = async (req, res) => {
+   const {id} = req.params;
+   try {
+       const flight = await Flight.findById(id)
+       if (!flight) {
+           return res.status(404).json({ msg: 'flight not found' });
+       }
+       res.json(flight);
+   } catch (error) {
+       console.log(error)
+       res.status(500).json({ msg: 'Error fetching flight', error: error.message });
+   }
+   
+};
+
+module.exports = { addFlightSchedule, getFlightSchedule, getFlightById };
