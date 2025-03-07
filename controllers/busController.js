@@ -22,43 +22,58 @@ const busNames = ["Express Line", "City Rider", "GreenLine", "Sky Travels", "Blu
 const classes = ["AC", "Non AC"];
 
 // Insert new bus schedule every 6 minutes
-const insertBusScheduleEverySixMinutes = () => {
-    setInterval(async () => {
-        try {
-            // Select 'from' and 'to' randomly but ensure they aren't the same
-            let from = randomElement(locations);
-            let to;
-            do {
-                to = randomElement(locations);
-            } while (from === to);
+// const insertBusScheduleEverySixMinutes = () => {
+//     setInterval(async () => {
+//         try {
+//             // Select 'from' and 'to' randomly but ensure they aren't the same
+//             let from = randomElement(locations);
+//             let to;
+//             do {
+//                 to = randomElement(locations);
+//             } while (from === to);
 
-            // Generate other random data
-            const scheduleData = {
-                busNumber: Math.floor(Math.random() * 9000) + 1000, // 4-digit random number
-                busName: randomElement(busNames),
-                class: randomElement(classes),
-                from,
-                to,
-                departureTime: new Date(),
-                arrivalTime: new Date(Date.now() + 3 * 60 * 60 * 1000), // 3 hours later
-                seatsAvailable: Math.floor(Math.random() * 30) + 20, // Random seats between 20 and 50
-                price: randomPrice(500, 2000),
-                date: new Date()
-            };
-
-            const newSchedule = new BusSchedule(scheduleData);
-            await newSchedule.save();
-            console.log("New bus schedule inserted:", newSchedule);
-        } catch (error) {
-            console.error("Error inserting bus schedule:", error);
+//             // Generate other random data
+//             const scheduleData = {
+//                 busNumber: Math.floor(Math.random() * 9000) + 1000, // 4-digit random number
+//                 busName: randomElement(busNames),
+//                 class: randomElement(classes),
+//                 from,
+//                 to,
+//                 departureTime: new Date(),
+//                 arrivalTime: new Date(Date.now() + 3 * 60 * 60 * 1000), // 3 hours later
+//                 seatsAvailable: Math.floor(Math.random() * 30) + 20, // Random seats between 20 and 50
+//                 price: randomPrice(500, 2000),
+//                 date: new Date()
+//             };
+ 
+//             const newSchedule = new BusSchedule(scheduleData);
+//             await newSchedule.save();
+//             console.log("New bus schedule inserted:", newSchedule);
+//         } catch (error) {
+//             console.error("Error inserting bus schedule:", error);
+//         }
+//     }, 360000); // Inserts data every 6 minutes
+// };
+const getBusSchedule = async (req, res) => {
+    try {
+        // Fetch and sort bus schedules by date in descending order
+        const busSchedules = await BusSchedule.find().sort({ date: -1 });
+        
+        if (busSchedules.length === 0) {
+            return res.status(404).json({ msg: "No bus schedules available" });
         }
-    }, 360000); // Inserts data every 6 minutes
+        
+        res.status(200).json(busSchedules);
+    } catch (error) {
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
 };
 
-// Get bus schedules by date
+
+
 const getBusSchedulesByDate = async (req, res) => {
     const { date, from, to } = req.query;
-console.log(date, from, to);
+
     if (!date || !from || !to || date === 'null') {
         return res.status(400).json({ msg: 'Date, from, and to fields are required' });
     }
@@ -67,30 +82,50 @@ console.log(date, from, to);
         // Normalize the date for filtering
         const startOfDay = new Date(date);
         startOfDay.setUTCHours(0, 0, 0, 0);
-        console.log(startOfDay)
+
         const endOfDay = new Date(date);
         endOfDay.setUTCHours(23, 59, 59, 999);
-        console.log(endOfDay)
+
+        console.log("Start of Day:", startOfDay);
+        console.log("End of Day:", endOfDay);
+
+        // Fetch bus schedules for the requested date
         const busSchedules = await BusSchedule.find({
-            date: {
-                $gte: startOfDay,
-                $lt: endOfDay
-            },
-            
+            date: { $gte: startOfDay, $lt: endOfDay },
             from,
             to
         });
 
-        if (busSchedules.length === 0) {
-            return res.status(404).json({ msg: 'No bus schedules found for the specified date and route' });
+        // If schedules exist for the requested date, return them
+        if (busSchedules.length > 0) {
+            return res.json(busSchedules);
         }
 
-        res.json(busSchedules);
+        // If no schedules found, fetch the next available schedules (limit 5)
+        const nextBusSchedules = await BusSchedule.find({
+            date: { $gt: endOfDay }, // Look for schedules after the requested date
+            from,
+            to
+        })
+            .sort({ date: 1 }) // Sort in ascending order
+            .limit(5); // Limit to 5 schedules
+
+        if (nextBusSchedules.length > 0) {
+            return res.json(
+               
+                 nextBusSchedules
+            );
+        }
+
+        // If no buses are found at all
+        return res.status(404).json({ msg: 'No bus schedules available for the specified route' });
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ msg: 'Error fetching bus schedules', error: error.message });
     }
 };
+
 
 
 const getBusById = async (req, res) => {
@@ -113,4 +148,5 @@ const getBusById = async (req, res) => {
 // insertBusScheduleEverySixMinutes();
 
 // Export the functions
-module.exports = { addBusSchedule, getBusSchedulesByDate, getBusById };
+module.exports = { addBusSchedule, getBusSchedulesByDate, getBusById, getBusSchedule };
+ 

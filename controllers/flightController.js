@@ -8,35 +8,56 @@ const addFlightSchedule = async (req, res) => {
    } catch (error) {
       res.status(500).json({ msg: 'Error creating schedule', error: error.message });
    }
-};
+}; 
 
 const getFlightSchedule = async (req, res) => {
    const { date, from, to } = req.query;
-console.log(date, from, to )
+
    if (!date || !from || !to || date === 'null') {
-      return res.status(400).json({ msg: 'Date, from, and to fields are required' });
+       return res.status(400).json({ msg: 'Date, from, and to fields are required' });
    }
 
    try {
-      const flightSchedules = await Flight.find({
-         date: {
-            $gte: new Date(date),
-            $lt: new Date(new Date(date).setDate(new Date(date).getDate() + 1)),
-         },
-         from,
-         to,
-      });
+       // Search for flights on the requested date
+       const requestedDateFlights = await Flight.find({
+           date: {
+               $gte: new Date(date),
+               $lt: new Date(new Date(date).setDate(new Date(date).getDate() + 1)),
+           },
+           from,
+           to,
+       });
 
-      if (flightSchedules.length === 0) {
-         return res.status(404).json({ msg: 'No flight schedules found for the specified date and route' });
-      }
+       // If flights exist on the requested date, return them
+       if (requestedDateFlights.length > 0) {
+           return res.json(requestedDateFlights);
+       }
 
-      res.json(flightSchedules);
+       // If no flights found, search for the next available flights (limit 5)
+       const nextFlights = await Flight.find({
+           date: { $gt: new Date(date) }, // Find flights after the requested date
+           from,
+           to,
+       })
+           .sort({ date: 1 }) // Sort by date (ascending)
+           .limit(5); // Limit to 5 flights
+
+       if (nextFlights.length > 0) {
+           return res.json(
+            
+                nextFlights,
+           );
+       }
+
+       // If no flights found at all, return an empty array
+       return res.json([]);
+
    } catch (error) {
-      console.error(error);
-      res.status(500).json({ msg: 'Error fetching flight schedules', error: error.message });
+       console.error(error);
+       res.status(500).json({ msg: 'Error fetching flight schedules', error: error.message });
    }
 };
+
 
 
 const getFlightById = async (req, res) => {

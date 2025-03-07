@@ -12,44 +12,71 @@ const addTrainSchedule = async (req, res) => {
 
 const getTrainSchedule = async (req, res) => {
    const { date, from, to } = req.query;
-console.log(date, from, to )
+   
+   console.log("Requested Date:", date, "From:", from, "To:", to);
+
    if (!date || !from || !to || date === 'null') {
-      return res.status(400).json({ msg: 'Date, from, and to fields are required' });
+       return res.status(400).json({ msg: 'Date, from, and to fields are required' });
    }
 
    try {
-      const trainSchedules = await Train.find({
-         date: {
-            $gte: new Date(date),
-            $lt: new Date(new Date(date).setDate(new Date(date).getDate() + 1)),
-         },
-         from,
-         to,
-      });
+       // Normalize the date for filtering
+       const startOfDay = new Date(date);
+       startOfDay.setUTCHours(0, 0, 0, 0);
 
-      if (trainSchedules.length === 0) {
-         return res.status(404).json({ msg: 'No flight schedules found for the specified date and route' });
-      }
+       const endOfDay = new Date(date);
+       endOfDay.setUTCHours(23, 59, 59, 999);
 
-      res.json(trainSchedules);
+       // Fetch train schedules for the requested date
+       const trainSchedules = await Train.find({
+           date: { $gte: startOfDay, $lt: endOfDay },
+           from,
+           to
+       });
+
+       // If train schedules exist for the requested date, return them
+       if (trainSchedules.length > 0) {
+           return res.json(trainSchedules);
+       }
+
+       // If no schedules found, fetch the next available train schedules (limit 5)
+       const nextTrainSchedules = await Train.find({
+           date: { $gt: endOfDay }, // Look for trains after the requested date
+           from,
+           to
+       })
+           .sort({ date: 1 }) // Sort in ascending order
+           .limit(5); // Limit to 5 schedules
+
+       if (nextTrainSchedules.length > 0) {
+           return res.json(
+               
+               nextTrainSchedules
+           );
+       }
+
+       // If no trains are found at all
+       return res.status(404).json({ msg: 'No train schedules available for the specified route' });
+
    } catch (error) {
-      console.error(error);
-      res.status(500).json({ msg: 'Error fetching flight schedules', error: error.message });
+       console.error(error);
+       res.status(500).json({ msg: 'Error fetching train schedules', error: error.message });
    }
 };
 
+
 const getTrainById = async (req, res) => {
-   const {id} = req.params;
+   const { id } = req.params;
    try {
-       const train = await Train.findById(id)
-       if (!train) {
-           return res.status(404).json({ msg: 'train not found' });
-       }
-       res.json(train);
+      const train = await Train.findById(id)
+      if (!train) {
+         return res.status(404).json({ msg: 'train not found' });
+      }
+      res.json(train);
    } catch (error) {
-       console.log(error)
-       res.status(500).json({ msg: 'Error fetching train', error: error.message });
+      console.log(error)
+      res.status(500).json({ msg: 'Error fetching train', error: error.message });
    }
-   
+
 };
 module.exports = { addTrainSchedule, getTrainSchedule, getTrainById };
