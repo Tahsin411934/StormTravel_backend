@@ -11,6 +11,8 @@ const trainRoutes = require('./routes/trainRoutes');
 const becomeTourGiderRoutes = require('./routes/becomeTourGiderRouter');
 const bookingRoutes = require("./routes/BookingRoute"); 
 const TicketBookingRouter = require("./routes/TicketBookingRouter"); 
+const accessoriesCategoryRoutes = require("./routes/accessoriesCategoryRoutes"); 
+const busgetRoutes = require("./routes/busgetRoutes"); 
 const app = express(); 
 
 // Middleware
@@ -35,6 +37,8 @@ app.use('/api/package', packageRoutes)
 app.use('/api/accessories', accessoriesRoutes)
 app.use("/api/booking", bookingRoutes); 
 app.use('/api/becomeTourGider',  becomeTourGiderRoutes);
+app.use('/api/categories',  accessoriesCategoryRoutes);
+app.use('/api',  busgetRoutes);
 
 
 module.exports = app;

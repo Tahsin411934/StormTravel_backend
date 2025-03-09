@@ -9,6 +9,21 @@ const addFlightSchedule = async (req, res) => {
       res.status(500).json({ msg: 'Error creating schedule', error: error.message });
    }
 }; 
+const getBusSchedule = async (req, res) => {
+    try {
+        // Fetch and sort bus schedules by date in descending order
+        const flightSchedules = await Flight.find().sort({ date: -1 });
+        
+        if (flightSchedules.length === 0) {
+            return res.status(404).json({ msg: "No bus schedules available" });
+        }
+        
+        res.status(200).json(flightSchedules);
+    } catch (error) {
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+};
+
 
 const getFlightSchedule = async (req, res) => {
    const { date, from, to } = req.query;
@@ -75,4 +90,4 @@ const getFlightById = async (req, res) => {
    
 };
 
-module.exports = { addFlightSchedule, getFlightSchedule, getFlightById };
+module.exports = { addFlightSchedule, getFlightSchedule, getFlightById, getBusSchedule };

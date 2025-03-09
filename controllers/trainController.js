@@ -10,10 +10,26 @@ const addTrainSchedule = async (req, res) => {
    }
 };
 
+const TrainSchedule = async (req, res) => {
+    try {
+        // Fetch and sort bus schedules by date in descending order
+        const trainSchedules = await Train.find().sort({ date: -1 });
+        
+        if (trainSchedules.length === 0) {
+            return res.status(404).json({ msg: "No bus schedules available" });
+        }
+        
+        res.status(200).json(trainSchedules);
+    } catch (error) {
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+};
+
+
 const getTrainSchedule = async (req, res) => {
    const { date, from, to } = req.query;
    
-   console.log("Requested Date:", date, "From:", from, "To:", to);
+  
 
    if (!date || !from || !to || date === 'null') {
        return res.status(400).json({ msg: 'Date, from, and to fields are required' });
@@ -79,4 +95,4 @@ const getTrainById = async (req, res) => {
    }
 
 };
-module.exports = { addTrainSchedule, getTrainSchedule, getTrainById };
+module.exports = { addTrainSchedule, getTrainSchedule, getTrainById, TrainSchedule };
